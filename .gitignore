@@ -9,3 +9,6 @@
 
 # Undo-tree save-files
 *.~undo-tree
+
+# pdf output, don't upload as we generate from .md on the fly
+*.pdf
