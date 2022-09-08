@@ -1,6 +1,6 @@
 AppConnect Enterprise Change Data Capture with Debezium
 =======================================================
-[Change Data Capture (CDC)](https://www.redhat.com/en/topics/integration/what-is-change-data-capture) has been around for a long time, and the only out-of-the-box method for doing it with IIB/ACE has been to use our DatabaseInput node with Trigger functionality within the Database.  This has the downside that the Trigger will be performed within the transaction boundary and hence may introduce a delay in the original transaction.
+[Change Data Capture (CDC)](https://www.redhat.com/en/topics/integration/what-is-change-data-capture) has been around for a long time, and the only out-of-the-box method for doing it with IIB/ACE has been to use our DatabaseInput node with Trigger functionality within the Database.  This has the downside that the Trigger will be performed within the transaction boundary and hence may introduce a delay in the original transaction. (Though this is an upside for some; if you want the triggered execution to be tied to the original transaction, then definitely *keep* using Triggers!).
 The preferred method of performing CDC for many is therefore to look at the database logs, which will happen on a separate thread (or even in a separate process) to the original transaction.
 Whilst we're working on integrating this into the product for the future, I'd like to show you how it can be done with current versions using KafkaConnect and Debezium.
 
@@ -25,4 +25,5 @@ You now have CDC messages in a Kafka queue, let's read them!
 
 Reading the CDC messages with IIB/ACE
 -------------------------------------
-
+A simple flow to take the CDC messages from Debezium and reformat them looks like this:
+![Message flow with a Kafka Consumer node, Mapping node and Kafka Producer node](images/kafka_flow.png)
