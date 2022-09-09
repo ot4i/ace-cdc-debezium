@@ -27,3 +27,4 @@ Reading the CDC messages with IIB/ACE
 -------------------------------------
 A simple flow to take the CDC messages from Debezium and reformat them looks like this:
 ![Message flow with a Kafka Consumer node, Mapping node and Kafka Producer node](images/kafka_flow.png)
+We don't need to set anything special in the properties, but choose JSON domain for the Input Message Parsing.  I created a JSON Schema from an example message (`debezium.schema.json`), this one expects the message to contain a `book` and `borrower` field (I'm using a library lending database, the table I'm capturing on contains the borrower and book they've borrowed).

@@ -1,0 +1,271 @@
+{
+	"definitions": {},
+	"$schema": "http://json-schema.org/draft-07/schema#", 
+	"$id": "https://example.com/object1660038989.json", 
+	"title": "Root", 
+	"type": "object",
+	"properties": {
+		"schema": {
+			"$id": "#root/schema", 
+			"title": "Schema", 
+			"type": "object",
+			"properties": {
+				"type": {
+					"$id": "#root/schema/type", 
+					"title": "Type", 
+					"type": "string",
+					"default": "",
+					"pattern": "^.*$"
+				},
+				"fields": {
+					"$id": "#root/schema/fields", 
+					"title": "Fields", 
+					"type": "array",
+					"default": [],
+					"items":{
+						"$id": "#root/schema/fields/items", 
+						"title": "Items", 
+						"type": "object",
+						"properties": {
+							"type": {
+								"$id": "#root/schema/fields/items/type", 
+								"title": "Type", 
+								"type": "string",
+								"default": "",
+								"pattern": "^.*$"
+							},
+							"fields": {
+								"$id": "#root/schema/fields/items/fields", 
+								"title": "Fields", 
+								"type": "array",
+								"default": [],
+								"items":{
+									"$id": "#root/schema/fields/items/fields/items", 
+									"title": "Items", 
+									"type": "object",
+									"properties": {
+										"type": {
+											"$id": "#root/schema/fields/items/fields/items/type", 
+											"title": "Type", 
+											"type": "string",
+											"default": "",
+											"pattern": "^.*$"
+										},
+										"optional": {
+											"$id": "#root/schema/fields/items/fields/items/optional", 
+											"title": "Optional", 
+											"type": "boolean",
+											"default": true
+										},
+										"field": {
+											"$id": "#root/schema/fields/items/fields/items/field", 
+											"title": "Field", 
+											"type": "string",
+											"default": "",
+											"pattern": "^.*$"
+										}
+									}
+								}
+
+							},
+							"optional": {
+								"$id": "#root/schema/fields/items/optional", 
+								"title": "Optional", 
+								"type": "boolean",
+								"default": true
+							},
+							"name": {
+								"$id": "#root/schema/fields/items/name", 
+								"title": "Name", 
+								"type": "string",
+								"default": "",
+								"pattern": "^.*$"
+							},
+							"field": {
+								"$id": "#root/schema/fields/items/field", 
+								"title": "Field", 
+								"type": "string",
+								"default": "",
+								"pattern": "^.*$"
+							}
+						}
+					}
+
+				},
+				"optional": {
+					"$id": "#root/schema/optional", 
+					"title": "Optional", 
+					"type": "boolean",
+					"default": true
+				},
+				"name": {
+					"$id": "#root/schema/name", 
+					"title": "Name", 
+					"type": "string",
+					"default": "",
+					"pattern": "^.*$"
+				}
+			}
+		}
+,
+		"payload": {
+			"$id": "#root/payload", 
+			"title": "Payload", 
+			"type": "object",
+			"properties": {
+				"before": {
+					"$id": "#root/payload/before", 
+					"title": "Before", 
+					"type": "null",
+					"default": null
+				},
+				"after": {
+					"$id": "#root/payload/after", 
+					"title": "After", 
+					"type": "object",
+					"properties": {
+						"book": {
+							"$id": "#root/payload/after/book", 
+							"title": "Book", 
+							"type": "integer",
+							"default": 0
+						},
+						"borrower": {
+							"$id": "#root/payload/after/borrower", 
+							"title": "Borrower", 
+							"type": "string",
+							"default": "",
+							"pattern": "^.*$"
+						}
+					}
+				}
+,
+				"source": {
+					"$id": "#root/payload/source", 
+					"title": "Source", 
+					"type": "object",
+					"properties": {
+						"version": {
+							"$id": "#root/payload/source/version", 
+							"title": "Version", 
+							"type": "string",
+							"default": "",
+							"pattern": "^.*$"
+						},
+						"connector": {
+							"$id": "#root/payload/source/connector", 
+							"title": "Connector", 
+							"type": "string",
+							"default": "",
+							"pattern": "^.*$"
+						},
+						"name": {
+							"$id": "#root/payload/source/name", 
+							"title": "Name", 
+							"type": "string",
+							"default": "",
+							"pattern": "^.*$"
+						},
+						"ts_ms": {
+							"$id": "#root/payload/source/ts_ms", 
+							"title": "Ts_ms", 
+							"type": "integer",
+							"default": 0
+						},
+						"snapshot": {
+							"$id": "#root/payload/source/snapshot", 
+							"title": "Snapshot", 
+							"type": "string",
+							"default": "",
+							"pattern": "^.*$"
+						},
+						"db": {
+							"$id": "#root/payload/source/db", 
+							"title": "Db", 
+							"type": "string",
+							"default": "",
+							"pattern": "^.*$"
+						},
+						"sequence": {
+							"$id": "#root/payload/source/sequence", 
+							"title": "Sequence", 
+							"type": "null",
+							"default": null
+						},
+						"table": {
+							"$id": "#root/payload/source/table", 
+							"title": "Table", 
+							"type": "string",
+							"default": "",
+							"pattern": "^.*$"
+						},
+						"server_id": {
+							"$id": "#root/payload/source/server_id", 
+							"title": "Server_id", 
+							"type": "integer",
+							"default": 0
+						},
+						"gtid": {
+							"$id": "#root/payload/source/gtid", 
+							"title": "Gtid", 
+							"type": "null",
+							"default": null
+						},
+						"file": {
+							"$id": "#root/payload/source/file", 
+							"title": "File", 
+							"type": "string",
+							"default": "",
+							"pattern": "^.*$"
+						},
+						"pos": {
+							"$id": "#root/payload/source/pos", 
+							"title": "Pos", 
+							"type": "integer",
+							"default": 0
+						},
+						"row": {
+							"$id": "#root/payload/source/row", 
+							"title": "Row", 
+							"type": "integer",
+							"default": 0
+						},
+						"thread": {
+							"$id": "#root/payload/source/thread", 
+							"title": "Thread", 
+							"type": "integer",
+							"default": 0
+						},
+						"query": {
+							"$id": "#root/payload/source/query", 
+							"title": "Query", 
+							"type": "null",
+							"default": null
+						}
+					}
+				}
+,
+				"op": {
+					"$id": "#root/payload/op", 
+					"title": "Op", 
+					"type": "string",
+					"default": "",
+					"pattern": "^.*$"
+				},
+				"ts_ms": {
+					"$id": "#root/payload/ts_ms", 
+					"title": "Ts_ms", 
+					"type": "integer",
+					"default": 0
+				},
+				"transaction": {
+					"$id": "#root/payload/transaction", 
+					"title": "Transaction", 
+					"type": "null",
+					"default": null
+				}
+			}
+		}
+
+	}
+}
