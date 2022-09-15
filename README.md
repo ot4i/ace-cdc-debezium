@@ -27,6 +27,7 @@ Reading the CDC messages with IIB/ACE
 -------------------------------------
 A simple flow to take the CDC messages from Debezium and reformat them looks like this:
 ![Message flow with a Kafka Consumer node, Mapping node and Kafka Producer node](images/kafka_flow.png)
+    
 We don't need to set anything special in the properties, but choose JSON domain for the Input Message Parsing.  I created a JSON Schema from an example message (`debezium.schema.json`, not sure which one it was, but I used an online schema generator), this one expects the message to contain a `book` and `borrower` field (I'm using a library lending database, the table I'm capturing on contains the borrower and book they've borrowed). I also created a schema for what I wanted my output to look like and then used a Mapping node to map them, mapping the book to a `book_id`, the borrower straight over, and the operation type (`JSON.Data.payload.op`; part of the metadata in the message; whether it's an Insert, Update or Delete).
 Finally I sent it on to a second Kafka queue for displaying on a little web page.
 
@@ -36,5 +37,6 @@ Yes and no.
 In principle yes, and I'd expect it's straighforward for most users.  If you're like me, you're not like most users however! There are some areas that complicate matters a little:
 
 1. If you've built up your own Kubernetes cluster by hand (because you were learning about Kubernetes a while ago and just continued using the cluster for other stuff...) you might have used CRI-O rather than Docker runtime.  In which case you'll have a [little fight on your hands getting the Kaniko engine working](https://github.com/strimzi/strimzi-kafka-operator/discussions/7179), but it does work eventually.
-1. You decide to use DB2 in the above cluster for your first attempt at CDC, even though it was clearly not the preferred choice by Debezium.
-
+1. You decide to use DB2 in the above cluster for your first attempt at CDC, even though it was clearly not the preferred choice by Debezium. Your Mileage May Vary, but I made a mistake I think, so that after getting one message through it stopped working, when I restarted the pod it complained about not finding its schema store.  So I deleted and recreated the connector but it still didn't work, so I deleted all the Kafka topics and it *still* didn't work; so I gave up.  But then I realised that the architecture that Debezium uses for DB2 allows us to get the data straight into IIB/ACE via the DatabaseInput node (i.e. populating the Event Input table using CDC rather than Triggers), which worked beautifully. I ended up with a flow like this:
+![Message flow with a Kafka Consumer and DatabaseInput node, Mapping node and Kafka Producer node](images/kafka_and_DB_flow.png)
+You can see the source code for the DatabaseInput node in `capture_DB2_Capture.esql`, as you can see it's pretty basic and needs two specific improvements: 1. The latest read Key is stored as a `SHARED INT` which means it'll reset every time the node restart (the fix would be to store it in some sort of persistent system to store data...) and 2. IT never removes any entries from the table so would grow very large over time (the fix would be to delete the row from the DB in `EndEvent` rather than just updating the Key, this would even solve #1 above!).
