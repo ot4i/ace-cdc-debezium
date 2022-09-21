@@ -19,7 +19,7 @@ There are a few things I'm going to assume you have set up already, just because
 
 Using Debezium to Connect your Database to Kafka
 ------------------------------------------------
-We use a tool called KafkaConnect to do this for us.  If you're using a standalone Kafka instance, I'd suggest simply following the [Debezium tutorial](https://debezium.io/documentation/reference/1.9/tutorial.html), or if you're using Strimzi then follow [this blog](https://strimzi.io/blog/2020/01/27/deploying-debezium-with-kafkaconnector-resource/).
+We use a tool called KafkaConnect to do this for us.  If you're using a standalone Kafka instance, I'd suggest simply following the [Debezium tutorial](https://debezium.io/documentation/reference/1.9/tutorial.html), or if you're using Strimzi then follow [this blog](https://strimzi.io/blog/2020/01/27/deploying-debezium-with-kafkaconnector-resource/), or this [Debezium Kubernetes Documentation](https://debezium.io/documentation/reference/stable/operations/kubernetes.html) page.
 
 You now have CDC messages in a Kafka queue, let's read them!
 
@@ -39,4 +39,74 @@ In principle yes, and I'd expect it's straighforward for most users.  If you're 
 1. If you've built up your own Kubernetes cluster by hand (because you were learning about Kubernetes a while ago and just continued using the cluster for other stuff...) you might have used CRI-O rather than Docker runtime.  In which case you'll have a [little fight on your hands getting the Kaniko engine working](https://github.com/strimzi/strimzi-kafka-operator/discussions/7179), but it does work eventually.
 1. You decide to use DB2 in the above cluster for your first attempt at CDC, even though it was clearly not the preferred choice by Debezium. Your Mileage May Vary, but I made a mistake I think, so that after getting one message through it stopped working, when I restarted the pod it complained about not finding its schema store.  So I deleted and recreated the connector but it still didn't work, so I deleted all the Kafka topics and it *still* didn't work; so I gave up.  But then I realised that the architecture that Debezium uses for DB2 allows us to get the data straight into IIB/ACE via the DatabaseInput node (i.e. populating the Event Input table using CDC rather than Triggers), which worked beautifully. I ended up with a flow like this:
 ![Message flow with a Kafka Consumer and DatabaseInput node, Mapping node and Kafka Producer node](images/kafka_and_db_flow.png)
-You can see the source code for the DatabaseInput node in `capture_DB2_Capture.esql`, as you can see it's pretty basic and needs two specific improvements: 1. The latest read Key is stored as a `SHARED INT` which means it'll reset every time the node restart (the fix would be to store it in some sort of persistent system to store data...) and 2. IT never removes any entries from the table so would grow very large over time (the fix would be to delete the row from the DB in `EndEvent` rather than just updating the Key, this would even solve #1 above!).
+You can see the source code for the DatabaseInput node in `capture_DB2_Capture.esql`, as you can see it's pretty basic and needs two specific improvements: 1. The latest read Key is stored as a `SHARED INT` which means it'll reset every time the node restart (the fix would be to store it in some sort of persistent system to store data...) and 2. It never removes any entries from the table so would grow very large over time (the fix would be to delete the row from the DB in `EndEvent` rather than just updating the Key, this would even solve #1 above!). The reason I kept it this way is that it makes it easier to test the functionality if there are loads of entries in the event table.
+
+
+Here's the configuration I needed to get mysql working, it's *mostly* the same as the docs.
+
+1. Creating the KafkaConnect container, I used the following `yaml` to cause the Strimzi Operator to start it (see `debezium_kafka_connect_cluster_mysql.yaml`):
+```yaml
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaConnect
+metadata:
+  name: debezium-connect-cluster
+  namespace: kafka
+  annotations:
+    strimzi.io/use-connector-resources: "true"
+spec:
+  image: aushafy/debezium-connect-mysql
+  version: 3.1.0
+  replicas: 1
+  bootstrapServers: my-cluster-kafka-bootstrap:9092
+  config:
+    config.providers: secrets
+    config.providers.secrets.class: io.strimzi.kafka.KubernetesSecretConfigProvider
+    group.id: connect-cluster
+    offset.storage.topic: connect-cluster-offsets
+    config.storage.topic: connect-cluster-configs
+    status.storage.topic: connect-cluster-status
+    # -1 means it will use the default replication factor configured in the broker
+    config.storage.replication.factor: -1
+    offset.storage.replication.factor: -1
+    status.storage.replication.factor: -1
+  externalConfiguration:
+    volumes:
+      - name: connector-config
+        secret:
+          secretName: mysql-credentials
+```
+Things of note:
+
+- the `name` is simply "debezium-connect-cluster", I should probably have used "mysql" in there somewhere, as I needed another for other databases.
+- the `image` tag points to a pre-built mysql image that I found on Docker Hub, this was before I managed to get Kaniko working
+- the `secret` mysql-credentials that I reference didn't actually work in the end, more on that later.
+
+2. Then creating the KafkaConnector to run in the above container, I used the following `yaml` to launch it (see `debezium_kafka_connect_connector_mysql.yaml`):
+```yaml
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaConnector
+metadata:
+  name: debezium-mysql-connector
+  namespace: kafka
+  labels:
+    strimzi.io/cluster: debezium-connect-cluster
+spec:
+  class: io.debezium.connector.mysql.MySqlConnector
+  tasksMax: 1
+  config:
+    database.hostname: mysql.mysql
+    database.port: 3306
+    database.user: mqsi
+    database.password: ***password***
+    database.include.list: Library
+    database.server.name: mysql
+    database.history.kafka.bootstrap.servers: my-cluster-kafka-bootstrap:9092
+    database.history.kafka.topic: schema-changes.library
+```
+Things of note:
+
+- the `database.hostname` is using an internal kubernetes name (so the `mysql` service in the `mysql` namespace), if it's external then use it's proper name for your network
+- the `database.user` is "mqsi", replace this with whatever user you have created.
+- the `database.password` is hardcoded in the yaml file.  This is possibly a Bad Thing, there's meant to be a reference to the previously declared "mysql-credentials" but that didn't work for me. It should have been `${secrets:kafka/mysql-credentials:password}` and `${secrets:kafka/mysql-credentials:username}` for the above `database.user` field. (where `kafka` is the namespace I've been creating my KafkaConnect pods and `mysql-credentials` the name of the `Secret`.
+
+After creating the KafkaConnector, tail the logs of the Cluster pod created in the previous step, *that's* where the progress / errors will appear.
