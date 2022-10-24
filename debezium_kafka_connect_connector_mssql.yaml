@@ -1,0 +1,20 @@
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaConnector
+gen_bridge_metadata:
+  name: debezium-mssql-connector
+  namespace: kafka
+  labels:
+    strimzi.io/cluster: debezium-mssql-cluster
+spec:
+  class: io.debezium.connector.sqlserver.SqlServerConnector
+  tasksMax: 1
+  config:
+    database.hostname: mssql-deployment.mssql
+    database.port: 1433
+    database.user: mqsi
+    database.password: ${PW}
+    database.dbname: mqsi
+    database.server.name: mssql
+    table.include.list: mqsi.Lending
+    database.history.kafka.bootstrap.servers: my-cluster-kafka-bootstrap:9092
+    database.history.kafka.topic: dbhistory.mssql

@@ -1,0 +1,46 @@
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaConnect
+metadata:
+  name: debezium-mssql-cluster
+  namespace: kafka
+  annotations:
+    strimzi.io/use-connector-resources: "true"
+spec:
+  version: 3.1.0
+  replicas: 1
+  bootstrapServers: my-cluster-kafka-bootstrap:9092
+  config:
+    config.providers: secrets
+    config.providers.secrets.class: io.strimzi.kafka.KubernetesSecretConfigProvider
+    group.id: mssql-cluster
+    offset.storage.topic: mssql-cluster-offsets
+    config.storage.topic: mssql-cluster-configs
+    status.storage.topic: mssql-cluster-status
+    # -1 means it will use the default replication factor configured in the broker
+    config.storage.replication.factor: -1
+    offset.storage.replication.factor: -1
+    status.storage.replication.factor: -1
+  build:
+    output:
+      type: docker
+      image: appconnect-docker-local.artifactory.swg-devops.com/test/amartens/debezium-connect-mssql:latest
+      #additionalKanikoOptions: [--insecure]
+      pushSecret: jfrogcred
+    plugins:
+      - name: debezium-mssql-connector
+        artifacts:
+          - type: tgz
+            url: https://repo1.maven.org/maven2/io/debezium/debezium-connector-sqlserver/1.9.6.Final/debezium-connector-sqlserver-1.9.6.Final-plugin.tar.gz
+  template:
+    pod:
+      imagePullSecrets:
+        - name: jfrogcred
+    buildContainer:
+      securityContext:
+        capabilities:
+          add: ["CHOWN", "DAC_OVERRIDE","FOWNER","SETFCAP","SETGID","SETUID"]
+  externalConfiguration:
+    volumes:
+      - name: connector-config
+        secret:
+          secretName: mssql-credentials
