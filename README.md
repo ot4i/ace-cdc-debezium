@@ -133,3 +133,8 @@ Things of note:
 - the `strimzi.io/cluster: debezium-mssql-cluster` line is needed to connect to the previously defined connect cluster, since I changed the name.
 
 After creating the KafkaConnector, tail the logs of the Cluster pod created in the previous step, *that's* where the progress / errors will appear.
+
+Summary
+-------
+We've been experimenting with Debezium CDC and have managed to get CDC updates from SQL Server, MySQL and DB2 via Kafka into App Connect Enterprise where we can use a Mapping node to transform the data. The setup is fairly straightforward but debuggin can get tricky.
+I'm happy to help if anyone has problems or questions with it!
