@@ -136,5 +136,6 @@ After creating the KafkaConnector, tail the logs of the Cluster pod created in t
 
 Summary
 -------
-We've been experimenting with Debezium CDC and have managed to get CDC updates from SQL Server, MySQL and DB2 via Kafka into App Connect Enterprise where we can use a Mapping node to transform the data. The setup is fairly straightforward but debuggin can get tricky.
+We've been experimenting with Debezium CDC and have managed to get CDC updates from SQL Server, MySQL and DB2 via Kafka into App Connect Enterprise where we can use a Mapping node to transform the data. The setup is fairly straightforward but debugging can get tricky.
+
 I'm happy to help if anyone has problems or questions with it!
