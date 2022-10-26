@@ -102,7 +102,7 @@ Things of note:
 - the `secret` mssql-credentials that I reference didn't actually work in the end, more on that later.
 - I was uploading the built image to a jfrog artifactory, hence the `jfrogcred` and `image` target.
 
-2. Then creating the KafkaConnector to run in the above container, I used the following `yaml` to launch it (see `debezium_kafka_connect_connector_mysql.yaml`):
+2. Then creating the KafkaConnector to run in the above container, I used the following `yaml` to launch it (see `debezium_kafka_connect_connector_mssql.yaml`):
 ```yaml
 apiVersion: kafka.strimzi.io/v1beta2
 kind: KafkaConnector
