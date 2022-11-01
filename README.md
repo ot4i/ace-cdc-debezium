@@ -45,7 +45,7 @@ You can see the source code for the DatabaseInput node in [capture_DB2_Capture.e
 
 Here's the configuration I needed to get SQL Server working, it's *mostly* the same as the docs.
 
-1. Creating the KafkaConnect container, I used the following `yaml` to cause the Strimzi Operator to start it (source at [debezium_kafka_connect_mssql.yaml](debezium_kafka_connect_mssql.yaml):
+1. Creating the KafkaConnect container, I used the following `yaml` to cause the Strimzi Operator to start it (source at [debezium_kafka_connect_mssql.yaml](debezium_kafka_connect_mssql.yaml)):
 ```yaml
 apiVersion: kafka.strimzi.io/v1beta2
 kind: KafkaConnect
@@ -101,7 +101,7 @@ Things of note:
 - the `secret` mssql-credentials that I reference didn't actually work in the end, more on that later.
 - I was uploading the built image to a jfrog artifactory, hence the `jfrogcred` and `image` target.
 
-2. Then creating the KafkaConnector to run in the above container, I used the following `yaml` to launch it (source at [debezium_kafka_connect_connector_mssql.yaml](debezium_kafka_connect_connector_mssql.yaml)`):
+2. Then creating the KafkaConnector to run in the above container, I used the following `yaml` to launch it (source at [debezium_kafka_connect_connector_mssql.yaml](debezium_kafka_connect_connector_mssql.yaml)):
 ```yaml
 apiVersion: kafka.strimzi.io/v1beta2
 kind: KafkaConnector
