@@ -29,7 +29,7 @@ A simple flow to take the CDC messages from Debezium and reformat them looks lik
 
 ![Message flow with a Kafka Consumer node, Mapping node and Kafka Producer node](images/kafka_flow.png)
     
-We don't need to set anything special in the properties, but choose JSON domain for the Input Message Parsing.  I created a JSON Schema from an example message (`debezium.schema.json`, I used an online schema generator), this one expects the message to contain a `book` and `borrower` field (I'm using a library lending database, the table I'm capturing on contains the borrower and book they've borrowed). I also created a schema for what I wanted my output to look like and then used a Mapping node to map them, mapping the book to a `book_id`, the borrower straight over, and the operation type (`JSON.Data.payload.op`; part of the metadata in the message; whether it's an Insert, Update or Delete).
+We don't need to set anything special in the properties, but choose JSON domain for the Input Message Parsing.  I created a JSON Schema from an example message ([debezium.schema.json](debezium.schema.json), this has parameters specific to my database table so you'd need to re-generate it.  I used an online schema generator), this one expects the message to contain a `book` and `borrower` field (I'm using a library lending database, the table I'm capturing on contains the borrower and book they've borrowed). I also created a schema for what I wanted my output to look like and then used a Mapping node to map them, mapping the book to a `book_id`, the borrower straight over, and the operation type (`JSON.Data.payload.op`; part of the metadata in the message; whether it's an Insert, Update or Delete).
 Finally I sent it on to a second Kafka queue for displaying on a web page.
 
 Is it That Simple?
@@ -45,7 +45,7 @@ You can see the source code for the DatabaseInput node in `capture_DB2_Capture.e
 
 Here's the configuration I needed to get SQL Server working, it's *mostly* the same as the docs.
 
-1. Creating the KafkaConnect container, I used the following `yaml` to cause the Strimzi Operator to start it (see [debezium_kafka_connect_mssql.yaml](debezium_kafka_connect_mssql.yaml):
+1. Creating the KafkaConnect container, I used the following `yaml` to cause the Strimzi Operator to start it (source at [debezium_kafka_connect_mssql.yaml](debezium_kafka_connect_mssql.yaml):
 ```yaml
 apiVersion: kafka.strimzi.io/v1beta2
 kind: KafkaConnect
@@ -101,7 +101,7 @@ Things of note:
 - the `secret` mssql-credentials that I reference didn't actually work in the end, more on that later.
 - I was uploading the built image to a jfrog artifactory, hence the `jfrogcred` and `image` target.
 
-2. Then creating the KafkaConnector to run in the above container, I used the following `yaml` to launch it (see [debezium_kafka_connect_connector_mssql.yaml](debezium_kafka_connect_connector_mssql.yaml)`):
+2. Then creating the KafkaConnector to run in the above container, I used the following `yaml` to launch it (source at [debezium_kafka_connect_connector_mssql.yaml](debezium_kafka_connect_connector_mssql.yaml)`):
 ```yaml
 apiVersion: kafka.strimzi.io/v1beta2
 kind: KafkaConnector
