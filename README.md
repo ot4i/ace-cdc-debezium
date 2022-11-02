@@ -13,7 +13,7 @@ What you Need
 There are a few things I'm going to assume you have set up already, just because this would be a very long page if we did everything from scratch!
 
 1. IBM Integration Bus v10 or IBM App Connect Enterprise. If you don't have one already, you can use the [Developer edition](https://www.ibm.com/docs/en/app-connect/12.0?topic=enterprise-download-ace-developer-edition-get-started).
-1. A Database, one of the ones in the supported list would be best.  The easiest one to use with Debezium if you're just exploring is probably MySQL, although SQL Server is almost just as easy.
+1. A Database, one of the ones in the [supported list](https://debezium.io/documentation/reference/stable/connectors/index.html) would be best.  The easiest one to use with Debezium if you're just exploring is probably MySQL, although SQL Server is almost just as easy.
 1. A Kafka cluster; I used [Strimzi](https://strimzi.io) in a small Kubernetes cluster, but standalone is fine.
 1. A way to drive changes in the Database.  I used a small flow in IBM App Connect Enterprise to make changes (driven by a Kafka message, although HTTP input with the flow exerciser is arguably an easier method). You could also use simple SQL in your chosen DBs command line tool.
 
